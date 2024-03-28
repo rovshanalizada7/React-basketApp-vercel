@@ -1,12 +1,12 @@
 import { Card, Image, Text, Badge, Button, Group } from '@mantine/core';
 
 
-const CardComponent = ({name,onAdd}) => {
+const CardComponent = ({name,src,onAdd}) => {
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Card.Section>
         <Image
-          src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
+          src={`/assets/images/${src}.jpg`}
           height={160}
           alt="Norway"
         />

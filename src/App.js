@@ -1,42 +1,107 @@
 import {useState} from 'react';
-import './App.css';
+import { useDisclosure } from '@mantine/hooks';
 import '@mantine/core/styles.css';
-import { IconCircleCheck, IconCircleDashed } from '@tabler/icons-react';
-import { Container,SimpleGrid,List,ThemeIcon,rem } from '@mantine/core';
+import './App.css';
+import { IconCircleCheck,IconBasket } from '@tabler/icons-react';
+import {Badge , Container,Drawer,Indicator ,SimpleGrid,List,Group,ThemeIcon,rem,Input,Button } from '@mantine/core';
 import Card from './components/Card';
+
 
 const storeItems = [
 {
-  name:'A',
+  id:100,
+  src:"bag",
+  name:'Backpack',
   price:20,
 },
 {
-  name:'B',
+  id:101,
+  src:"car",
+  name:'Ancient car',
   price:10,
 },
 {
-  name:'C',
+  id:102,
+  src:"headphones",
+  name:'Headphone',
+  price:25,
+},
+{
+  id:103,
+  src:"parfume",
+  name:'Parfume',
+  price:25,
+},
+{
+  id:104,
+  src:"photogr",
+  name:'Photo machine',
+  price:25,
+},
+{
+  id:105,
+  src:"watch",
+  name:'Watch',
   price:25,
 },
 ]
 
 function App() {
+ const [opened, { open, close }] = useDisclosure(false);
  const [basketItems,setBasketItems] = useState([]);
+ let [searchValue,setSearchValue] = useState('');
+ let filteredItems = storeItems.filter((item)=>item.name.toLowerCase().indexOf(searchValue.toLowerCase())>=0);
+
+let addToBasket = ({id,name}) => {
+ let basketIndex = basketItems.findIndex(item=>item.id === id);
+ if(basketIndex >=0) {
+  let _basketItems = [...basketItems];
+  _basketItems[basketIndex].count += 1;
+  setBasketItems(_basketItems);
+ }else {
+  setBasketItems([...basketItems,{id,name,count: 1}]);
+ }
+};
 
   return (
-    <Container>
 
-    <SimpleGrid cols={3}>
-      {storeItems.map(({name})=>{
+    <Container>
+     <h1>Basket App</h1> 
+      
+   <Group align='end'>
+
+    <Input.Wrapper label="Include an item name " >
+      <Input value={searchValue} placeholder='Search...' onChange={(e)=>setSearchValue(e.target.value)} />
+    </Input.Wrapper>
+    <Button onClick={()=>setSearchValue('')}>Clean</Button>
+
+    <Indicator label={basketItems.length} inline processing color="red" size={18}>
+    <Button onClick={open}><IconBasket size={26}/></Button>
+    </Indicator>
+
+    </Group>
+
+    <SimpleGrid cols={3} className='Store'>
+      {filteredItems.map(({id,name,src})=>{
        return  <Card 
        name ={name}
+       src={src}
        key = {name}
-       onAdd={()=>{
-       }}
+       onAdd={()=>addToBasket({id,name})}
        /> 
       })}
     </SimpleGrid>
-    <List
+
+    <Drawer position="right"
+        opened={opened}
+        onClose={close}
+        title="My Basket"
+        padding='md'
+        size='md'
+        overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
+      >
+      <List 
+      className="List"
       spacing="xs"
       size="sm"
       center
@@ -46,21 +111,19 @@ function App() {
         </ThemeIcon>
       }
     >
-      <List.Item>Clone or download repository from GitHub</List.Item>
-      <List.Item>Install dependencies with yarn</List.Item>
-      <List.Item>To start development server run npm start command</List.Item>
-      <List.Item>Run tests to make sure your changes do not break the build</List.Item>
-      <List.Item
-        icon={
-          <ThemeIcon color="blue" size={24} radius="xl">
-            <IconCircleDashed style={{ width: rem(16), height: rem(16) }} />
-          </ThemeIcon>
-        }
-      >
-        Submit a pull request once you are done
-      </List.Item>
+    {basketItems.map(({name,count},index)=> (
+  <List.Item key={index}>
+    {name} <Badge color="cyan">{count}</Badge> 
+    </List.Item> 
+  ))}
+      
     </List>
-    </Container>
+  
+   </Drawer>
+
+  </Container>
+
+  
   );
 }
 
